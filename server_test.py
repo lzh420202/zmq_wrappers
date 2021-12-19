@@ -1,5 +1,5 @@
 import cv2
-from zmq_server_wrappers import zmq_data_server, Queue, zmq_multipart_data_server
+from zmq_wrappers.zmq_server_wrappers import Queue, zmq_multipart_data_server
 import os
 
 if __name__ == '__main__':

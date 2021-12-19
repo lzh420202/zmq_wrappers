@@ -1,8 +1,8 @@
 import time
 
-from zmq_base import zmq_client_base
+from .zmq_base import zmq_client_base
 from queue import Queue
-from message_hooks import sendDataHooks, sendMultipartDataHooks
+from .message_hooks import sendDataHooks, sendMultipartDataHooks
 from threading import Thread
 import copy
 

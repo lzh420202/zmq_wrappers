@@ -1,7 +1,5 @@
-from zmq_client_wrappers import zmq_data_client, Queue, zmq_multipart_data_client, monitorThread
+from zmq_wrappers.zmq_client_wrappers import Queue, zmq_multipart_data_client, monitorThread
 import cv2
-import os
-
 
 if __name__ == '__main__':
     ip = '192.168.2.38'

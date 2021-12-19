@@ -1,5 +1,5 @@
-from zmq_base import zmq_server_base
-from message_hooks import recvDataHooks, recvMultipartDataHooks
+from .zmq_base import zmq_server_base
+from .message_hooks import recvDataHooks, recvMultipartDataHooks
 from queue import Queue
 
 
