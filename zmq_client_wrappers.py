@@ -34,13 +34,13 @@ class monitorThread(Thread):
                     rate = stat_copy['current'] / stat_copy['total']
                     bar_length = min(self.bar_width, round(rate * self.bar_width))
                     process = space.format(''.ljust(bar_length))
-                    if bar_length < self.bar_width:
-                        process = process.ljust(self.bar_width)
+                    # if bar_length < self.bar_width:
+                    process = process.ljust(self.bar_width + 9)
                     speed = stat_copy['current'] / ((1 << 20) * stat_copy['used_time'])
                     bar = "\r" + f"{rate: 5.0%} {process} " \
-                                 f"{stat_copy['current']/(1<<10):.1f}/{stat_copy['total']/(1<<10):.1f} " \
+                                 f"{stat_copy['current']/(1<<20):.1f}/{stat_copy['total']/(1<<20):.1f}MB " \
                                  f"{speed: 5.2f}MB/s " \
-                                 f"{stat_copy['used_time']: .2f}s"
+                                 f"{stat_copy['used_time']: .1f}s"
                     print(bar, end='', flush=True)
                     if stat_copy['current'] == stat_copy['total']:
                         self.variate.update(dict(current=0, total=0, used_time=0))
