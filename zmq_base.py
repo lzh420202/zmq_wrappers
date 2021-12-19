@@ -1,10 +1,10 @@
 import zmq
-import threading
+from threading import Thread
 from queue import Queue
 
-class zmq_client_base(threading.Thread):
+class zmq_client_base(Thread):
     def __init__(self, dst_ip: str, port: int, input_queue: Queue, output_queue: Queue, callback):
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
         if callback is None:
             raise ValueError('callback can not be None.')
         self.context = zmq.Context()
@@ -17,7 +17,7 @@ class zmq_client_base(threading.Thread):
 
     def sendMessage(self, message: dict):
         self.socket.connect(self.addr)
-        result = self.callback(self.socket, message)
+        result = self.callback(self.socket, message, self.progressbar)
         self.socket.close()
         return result
 
@@ -32,9 +32,9 @@ class zmq_client_base(threading.Thread):
         self.context.destroy()
 
 
-class zmq_server_base(threading.Thread):
+class zmq_server_base(Thread):
     def __init__(self, port: int, output_queue: Queue, callback):
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
         if callback is None:
             raise ValueError('callback can not be None.')
         self.context = zmq.Context()
