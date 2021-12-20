@@ -18,7 +18,7 @@ class zmq_client_base(Thread):
     def sendMessage(self, message: dict):
         self.socket.connect(self.addr)
         result = self.callback(self.socket, message, self.progressbar)
-        self.socket.close()
+        self.socket.disconnect(self.addr)
         return result
 
     def run(self):

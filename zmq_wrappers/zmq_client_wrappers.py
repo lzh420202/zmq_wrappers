@@ -31,6 +31,8 @@ class monitorThread(Thread):
             if self.variate:
                 if self.variate['total'] > 0:
                     stat_copy = copy.deepcopy(self.variate)
+                    if stat_copy['used_time'] == 0:
+                        continue
                     rate = stat_copy['current'] / stat_copy['total']
                     bar_length = min(self.bar_width, round(rate * self.bar_width))
                     process = space.format(''.ljust(bar_length))
@@ -44,5 +46,6 @@ class monitorThread(Thread):
                     print(bar, end='', flush=True)
                     if stat_copy['current'] == stat_copy['total']:
                         self.variate.update(dict(current=0, total=0, used_time=0))
+                        print('')
             time.sleep(self.interval_time)
 
