@@ -29,58 +29,59 @@ def sendMultipartDataHooks(socket: zmq.Socket, message: dict, progress_bar_info=
     total = len(message_bytes)
     block_size = math.ceil(total / split_n)
     if block_size < min_block_size:
-        split_n = math.floor(total / min_block_size)
-        block_size = min_block_size
+        split_n = max(1, math.floor(total / min_block_size))
+        block_size = math.ceil(total / split_n)
     elif block_size > max_block_size:
         split_n = math.ceil(total / max_block_size)
-        block_size = max_block_size
+        block_size = math.ceil(total / split_n)
 
     if progress_bar_info:
         assert isinstance(progress_bar_info, dict)
         progress_bar_info.update(dict(current=0, total=total, used_time=0))
     t = time.time()
+    socket.send_string('START')
+    _ = socket.recv()
     socket.send_string(f'{split_n}')
     _ = socket.recv()
     for i in range(split_n):
         msg = message_bytes[i*block_size:(i+1)*block_size]
-        # socket.send(msg, zmq.SNDMORE | 0)
         socket.send(msg)
         if progress_bar_info:
             current = min(block_size * (i + 1), total)
             progress_bar_info.update(dict(current=current, used_time=time.time() - t))
         _ = socket.recv()
-    # socket.send(message_bytes[(split_n - 1) * block_size: split_n * block_size])
     if progress_bar_info:
         progress_bar_info.update(dict(current=total, used_time=time.time() - t))
     socket.send_string('done')
-    # progress_bar_info.update(dict(current=0, total=0, used_time=0))
     result = socket.recv_string()
 
 
 def recvMultipartDataHooks(socket: zmq.Socket, output_queue: Queue):
-    # while True:
-    #     parts = [socket.recv()]
-    #     # have first part already, only loop while more to receive
-    #     while socket.getsockopt(zmq.RCVMORE):
-    #         part = socket.recv()
-    #         parts.append(part)
-    #     message = pickle.loads(b''.join(parts))
-    #     if message:
-    #         output_queue.put(message)
-    #     socket.send_string('pass')
+    renew = False
     while True:
         msg = b'ok'
         parts = []
+        if renew:
+            renew = False
+        else:
+            assert socket.recv_string() == 'START'
+            socket.send(msg)
+
         n_str = socket.recv_string()
         n = int(n_str)
         socket.send(msg)
         for i in range(n):
-            parts.append(socket.recv())
+            msg_recv = socket.recv()
+            if len(msg_recv) == 5:
+                if msg_recv == b'START':
+                    renew = True
+                    socket.send(msg)
+                    break
+            parts.append(msg_recv)
             socket.send(msg)
+        if renew:
+            continue
         _ = socket.recv_string()
-        # while True:
-        #     part = socket.recv()
-        #     parts.append(part)
         message = pickle.loads(b''.join(parts))
         if message:
             output_queue.put(message)
