@@ -1,9 +1,10 @@
-from zmq_wrappers.zmq_client_wrappers import Queue, zmq_multipart_data_client, monitorThread
+import queue
+from zmq_wrappers.zmq_client_wrappers import zmq_multipart_data_client, monitorThread
 
 class custom_client():
     def __init__(self, ip, port, with_monitor=False):
-        self.input_queue = Queue(10)
-        self.output_queue = Queue(10)
+        self.input_queue = queue.Queue(10)
+        self.output_queue = queue.Queue(10)
         if with_monitor:
             self.process_info = dict(current=0, total=0, used_time=0)
         else:
@@ -18,3 +19,28 @@ class custom_client():
 
     def sendData(self, data):
         self.input_queue.put(data)
+
+    def testServer(self, clean=True):
+        qsize = self.output_queue.qsize()
+        caches = []
+        for i in range(qsize):
+            cache = self.output_queue.get()
+            if not clean:
+                caches.append(cache)
+        self.input_queue.put(dict(TEST=True))
+        try:
+            rep = self.output_queue.get(timeout=0.5)
+            self.testMethod(rep)
+        except (queue.Empty):
+            self.testMethod(None)
+        if not clean:
+            for cache in caches:
+                self.output_queue.put(cache)
+
+
+    def testMethod(self, flag):
+        if flag:
+            if flag.get('TEST') == 'SUCCESS':
+                print('ZeroMQ Server is Running!')
+                return
+        print('ZeroMQ Server is crashed!')

@@ -14,6 +14,7 @@ class zmq_client_base(Thread):
         self.callback = callback
         self.input_queue = input_queue
         self.output_queue = output_queue
+        self.progressbar = None
 
     def sendMessage(self, message: dict):
         self.socket.connect(self.addr)

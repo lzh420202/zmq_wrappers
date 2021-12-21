@@ -1,4 +1,5 @@
-from zmq_wrappers.zmq_server_wrappers import Queue, zmq_multipart_data_server
+from queue import Queue
+from zmq_wrappers.zmq_server_wrappers import zmq_multipart_data_server
 import cv2
 import os
 
