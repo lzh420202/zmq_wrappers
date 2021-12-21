@@ -19,3 +19,8 @@ python server_test.py
 ```shell
 python client_test.py
 ```
+
+客户端运行效果(在100m局域网下进行测试)
+
+![](res/progress_bar_running.png)
+![](res/progress_bar_finished.png)
