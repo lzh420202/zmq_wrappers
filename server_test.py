@@ -1,4 +1,4 @@
-from server_wrapper import custom_server
+from zmq_wrappers import custom_server
 
 if __name__ == '__main__':
     server = custom_server(10000)

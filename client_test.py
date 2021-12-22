@@ -1,5 +1,5 @@
 import cv2
-from client_wrapper import custom_client
+from zmq_wrappers import custom_client
 
 if __name__ == '__main__':
     client = custom_client('192.168.2.38', 10000, True)

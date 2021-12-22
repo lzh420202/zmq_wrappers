@@ -1,9 +1,9 @@
 import time
 
-from .zmq_base import zmq_client_base
+from ..base.zmq_base import zmq_client_base
 from queue import Queue
-from .message_hooks import sendDataHooks, sendMultipartDataHooks
-from .client_function import client_payload
+from ..hooks.message_hooks import sendDataHooks, sendMultipartDataHooks
+from ..hooks.client_function import client_payload
 from threading import Thread
 import copy
 

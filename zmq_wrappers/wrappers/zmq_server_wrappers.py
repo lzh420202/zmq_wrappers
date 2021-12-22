@@ -1,6 +1,6 @@
-from .zmq_base import zmq_server_base
-from .message_hooks import recvDataHooks, recvMultipartDataHooks
-from .server_function import server_payload
+from ..base.zmq_base import zmq_server_base
+from ..hooks.message_hooks import recvDataHooks, recvMultipartDataHooks
+from ..hooks.server_function import server_payload
 
 
 class zmq_data_server(zmq_server_base):
