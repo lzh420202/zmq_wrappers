@@ -3,18 +3,28 @@ import time
 from .zmq_base import zmq_client_base
 from queue import Queue
 from .message_hooks import sendDataHooks, sendMultipartDataHooks
+from .client_function import client_payload
 from threading import Thread
 import copy
 
 
 class zmq_data_client(zmq_client_base):
-    def __init__(self, dst_ip: str, port: int, input_queue: Queue, output_queue: Queue):
-        super(zmq_data_client, self).__init__(dst_ip, port, input_queue, output_queue, sendDataHooks)
+    def __init__(self, dst_ip: str, port: int, input_queue: Queue):
+        super(zmq_data_client, self).__init__(dst_ip, port, input_queue, sendDataHooks, client_payload)
 
 
 class zmq_multipart_data_client(zmq_client_base):
-    def __init__(self, dst_ip: str, port: int, input_queue: Queue, output_queue: Queue, progressbar=None):
-        super(zmq_multipart_data_client, self).__init__(dst_ip, port, input_queue, output_queue, sendMultipartDataHooks)
+    def __init__(self, dst_ip: str, port: int, input_queue: Queue, progressbar=None):
+        super(zmq_multipart_data_client, self).__init__(dst_ip, port, input_queue, sendMultipartDataHooks, client_payload)
+        self.progressbar = progressbar
+
+class zmq_client(zmq_client_base):
+    def __init__(self, dst_ip: str, port: int, input_queue: Queue, message_callback=None, function_callback=None, progressbar=None):
+        if message_callback is None:
+            message_callback = sendMultipartDataHooks
+        if function_callback is None:
+            function_callback = client_payload
+        super(zmq_client, self).__init__(dst_ip, port, input_queue, message_callback, function_callback)
         self.progressbar = progressbar
 
 

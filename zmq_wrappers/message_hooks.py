@@ -8,17 +8,18 @@ import math
 def sendDataHooks(socket: zmq.Socket, message: dict, progress_bar_info=None):
     t = time.time()
     socket.send_pyobj(message)
-    result = socket.recv_string()
-    print(result)
-    print(f'{time.time() - t: .2f} s')
+    result = socket.recv_pyobj()
+    return result
 
 
-def recvDataHooks(socket: zmq.Socket, output_queue: Queue):
+def recvDataHooks(socket: zmq.Socket, callback):
     while True:
         message = socket.recv_pyobj()
         if message:
-            output_queue.put(message)
-        socket.send_string('pass')
+            reply = callback(message)
+        else:
+            reply = None
+        socket.send_pyobj(reply)
 
 
 def sendMultipartDataHooks(socket: zmq.Socket, message: dict, progress_bar_info=None):
@@ -60,11 +61,11 @@ def sendMultipartDataHooks(socket: zmq.Socket, message: dict, progress_bar_info=
         if progress_bar_info:
             progress_bar_info.update(dict(current=total, used_time=time.time() - t))
         socket.send_string('done')
-        result = socket.recv_string()
+        result = socket.recv_pyobj()
         return result
 
 
-def recvMultipartDataHooks(socket: zmq.Socket, output_queue: Queue):
+def recvMultipartDataHooks(socket: zmq.Socket, callback):
     renew = False
     while True:
         msg = b'ok'
@@ -92,5 +93,8 @@ def recvMultipartDataHooks(socket: zmq.Socket, output_queue: Queue):
         _ = socket.recv_string()
         message = pickle.loads(b''.join(parts))
         if message:
-            output_queue.put(message)
-        socket.send_string('pass')
+            reply = callback(message)
+        else:
+            reply = None
+
+        socket.send_pyobj(reply)
