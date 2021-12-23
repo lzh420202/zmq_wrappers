@@ -5,7 +5,7 @@ class custom_client():
     def __init__(self, ip, port, with_monitor=False):
         self.input_queue = queue.Queue(10)
         if with_monitor:
-            self.process_info = dict(current=0, total=0, used_time=0)
+            self.process_info = dict(type='transfer', current=0, total=0, used_time=0, description='network transfer', done=False, run=False)
         else:
             self.process_info = None
         self.client = zmq_multipart_data_client(ip, port, self.input_queue, self.process_info)

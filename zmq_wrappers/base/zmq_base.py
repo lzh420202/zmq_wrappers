@@ -1,6 +1,8 @@
 import zmq
 from threading import Thread
 from queue import Queue
+from multiprocessing import Queue as mQueue
+from abc import abstractmethod
 
 class zmq_client_base(Thread):
     def __init__(self, dst_ip: str, port: int, input_queue: Queue, message_callback, function_callback):
@@ -36,17 +38,24 @@ class zmq_client_base(Thread):
         self.context.destroy()
 
 
-class zmq_server_base(Thread):
-    def __init__(self, port: int, message_callback, function_callback):
+class _zmq_server_base(Thread):
+    def __init__(self, port: int, message_callback):
         Thread.__init__(self)
         if message_callback is None:
             raise ValueError('message callback can not be None.')
-        if function_callback is None:
-            raise ValueError('function callback can not be None.')
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REP)
         self.socket.bind(f"tcp://*:{port}")
         self.message_callback = message_callback
+
+    @abstractmethod
+    def run(self):
+        raise NotImplementedError
+
+
+class zmq_server_base(_zmq_server_base):
+    def __init__(self, port: int, message_callback, function_callback):
+        super(zmq_server_base, self).__init__(port, message_callback)
         self.function_callback = function_callback
 
     def close_server(self):
@@ -55,6 +64,30 @@ class zmq_server_base(Thread):
 
     def listening(self):
         self.message_callback(self.socket, self.function_callback)
+
+    def run(self):
+        self.listening()
+
+
+class zmq_server_complex_base(_zmq_server_base):
+    def __init__(self, port: int,
+                 message_callback,
+                 data_queue: mQueue,
+                 result_queue: mQueue,
+                 progressbar_queue: mQueue = None,
+                 with_progressbar=False):
+        super(zmq_server_complex_base, self).__init__(port, message_callback)
+        self.data_queue = data_queue
+        self.result_queue = result_queue
+        self.progressbar_queue = progressbar_queue
+        self.with_progressbar = with_progressbar
+
+    def close_server(self):
+        self.socket.close()
+        self.context.destroy()
+
+    def listening(self):
+        self.message_callback(self.socket, self.data_queue, self.result_queue, self.progressbar_queue, self.with_progressbar)
 
     def run(self):
         self.listening()
