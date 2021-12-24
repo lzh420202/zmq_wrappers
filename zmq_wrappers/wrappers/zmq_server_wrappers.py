@@ -1,7 +1,7 @@
 from ..base.zmq_base import (zmq_server_base, zmq_server_complex_base)
 from ..hooks.message_hooks import (recvDataHooks, recvMultipartDataHooks, recvMultipartDataComplexHooks)
 from ..hooks.server_function import server_payload
-from queue import Queue
+from multiprocessing import Queue
 
 class zmq_data_server(zmq_server_base):
     def __init__(self, port: int):

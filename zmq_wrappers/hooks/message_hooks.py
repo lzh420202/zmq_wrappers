@@ -199,5 +199,15 @@ def sendMultipartDataComplexHooks(socket: zmq.Socket, message: dict, progress_ba
         if progress_bar_info:
             progress_bar_info.update(dict(current=total, used_time=time.time() - t))
         socket.send_string('done')
+        progress_bar_flag = socket.recv_pyobj()
+        if progress_bar_flag['with_progressbar']:
+            socket.send(b'0')
+            while True:
+                progress_bar_msg = socket.recv_pyobj()
+                if progress_bar_info:
+                    progress_bar_info.update(progress_bar_msg)
+                socket.send(b'0')
+                if progress_bar_msg['done']:
+                    break
         result = socket.recv_pyobj()
         return result

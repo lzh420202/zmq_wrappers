@@ -1,8 +1,8 @@
 import time
 
-from ..base.zmq_base import zmq_client_base
+from ..base.zmq_base import (zmq_client_base, zmq_client_complex_base)
 from queue import Queue
-from ..hooks.message_hooks import sendDataHooks, sendMultipartDataHooks
+from ..hooks.message_hooks import (sendDataHooks, sendMultipartDataHooks, sendMultipartDataComplexHooks)
 from ..hooks.client_function import client_payload
 from threading import Thread
 import copy
@@ -19,9 +19,9 @@ class zmq_multipart_data_client(zmq_client_base):
         self.progressbar = progressbar
 
 
-class zmq_multipart_data_complex_client(zmq_client_base):
-    def __init__(self, dst_ip: str, port: int, input_queue: Queue, progressbar=None):
-        super(zmq_multipart_data_complex_client, self).__init__(dst_ip, port, input_queue, sendMultipartDataHooks, client_payload)
+class zmq_multipart_data_complex_client(zmq_client_complex_base):
+    def __init__(self, dst_ip: str, port: int, input_queue: Queue, output_queue: Queue, progressbar=None):
+        super(zmq_multipart_data_complex_client, self).__init__(dst_ip, port, input_queue, output_queue, sendMultipartDataComplexHooks)
         self.progressbar = progressbar
 
 
